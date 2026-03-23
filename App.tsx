@@ -420,13 +420,18 @@ const App: React.FC = () => {
     // Update local preferences first for immediate UI response
     setPreferences(prev => ({ ...prev, bioProfile }));
     
+    // Fetch the absolute latest session directly from Supabase to avoid React state race conditions
+    const { data: { session } } = await supabase.auth.getSession();
+    const activeUserId = session?.user?.id || preferences.userId;
+    const isUserLoggedIn = !!session || preferences.isLoggedIn;
+
     // If logged in, sync with Supabase
-    if (preferences.isLoggedIn && preferences.userId) {
+    if (isUserLoggedIn && activeUserId) {
       try {
         await supabase.from('profiles').update({
           bio_profile: bioProfile,
           updated_at: new Date().toISOString()
-        }).eq('id', preferences.userId);
+        }).eq('id', activeUserId);
       } catch (err) {
         console.error("Error sincronizando bio-perfil:", err);
       }
