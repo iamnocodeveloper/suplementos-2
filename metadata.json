@@ -1,0 +1,7 @@
+{
+  "name": "Suplementos Inteligentes",
+  "description": "Plataforma científica de stacks de suplementos personalizados con interfaz minimalista y experiencia premium.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
