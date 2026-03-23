@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-background: #ffffff;
+  --color-surface: #f8fafc;
+  --color-primary: #0f172a;
+  --color-secondary: #64748b;
+  --color-accent: #4f46e5;
+  --color-border: #e2e8f0;
+}
+.dark {
+  --color-background: #0a0a0a;
+  --color-surface: #121212;
+  --color-primary: #e5e5e5;
+  --color-secondary: #a3a3a3;
+  --color-accent: #6366f1;
+  --color-border: #262626;
+}
+body {
+  background-color: var(--color-background);
+  color: var(--color-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s, color 0.3s;
+}
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
+}
+
+/* AI Content Highlighting */
+.prose-amber strong {
+  color: #f59e0b; /* Amber 500 */
+  font-weight: 900;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+.prose-amber em {
+  color: #fbbf24; /* Amber 400 */
+  font-style: italic;
+  background: rgba(245, 158, 11, 0.05);
+  padding: 0 4px;
+  border-radius: 4px;
+}
+.prose-amber h1, .prose-amber h2, .prose-amber h3 {
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+  font-style: italic;
+  font-weight: 900;
+}
+.prose-amber table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+.prose-amber th {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}

@@ -205,27 +205,20 @@ const RankingView: React.FC<Props> = ({
   }, []);
 
   // Lógica de Sincronización Independiente
-  // Ranking Científico: Solo actualiza snapshot ante eventos de sincronización (crono o manual)
   useEffect(() => {
     if (isSyncing) {
-        // Al empezar la sincronización, el estado actual se vuelve el "anterior" oficial
         sortedScientific.forEach((s, i) => prevScientificRanks.current[s.id] = i);
         localStorage.setItem('SI_RANK_SCI_SNAPSHOT', JSON.stringify(prevScientificRanks.current));
     }
   }, [isSyncing, sortedScientific]);
 
-  // Ranking Comunidad: Actualiza snapshot ante cambios en los votos para reflejar el movimiento premium real
   const lastCommunityOrder = useRef<string>('');
   useEffect(() => {
     const currentOrder = topCommunity.map(s => s.id).join(',');
     if (lastCommunityOrder.current !== currentOrder && lastCommunityOrder.current !== '') {
-        // Guardamos el orden previo antes de que se actualice el visual
-        // Esto permite que el TrendBadge calcule el delta contra la posición inmediata anterior
         localStorage.setItem('SI_RANK_COM_SNAPSHOT', JSON.stringify(prevCommunityRanks.current));
     }
-    // Actualizamos la referencia interna para el próximo cambio
     topCommunity.forEach((s, i) => {
-        // Solo actualizamos si no existe para no sobreescribir la base del delta mientras se visualiza
         if (prevCommunityRanks.current[s.id] === undefined) prevCommunityRanks.current[s.id] = i;
     });
     lastCommunityOrder.current = currentOrder;
@@ -297,16 +290,17 @@ const RankingView: React.FC<Props> = ({
 
     return (
       <div className={`
-        flex items-center gap-1.5 px-2 py-1 rounded-lg bg-black/40 dark:bg-black/60 border backdrop-blur-sm shadow-xl
-        ${isUp ? 'text-emerald-500 dark:text-emerald-400 border-emerald-500/30' : 'text-red-500 dark:text-red-400 border-red-500/30'}
-        animate-fade-in transition-all duration-500
+        flex items-center gap-1 px-2 py-0.5 rounded-lg border backdrop-blur-md shadow-sm transition-all duration-500 animate-fade-in
+        ${isUp 
+          ? 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-emerald-500/5' 
+          : 'bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 border-red-500/20 shadow-red-500/5'}
       `}>
         {isUp ? (
-          <ArrowUp size={14} strokeWidth={3} className="animate-pulse" />
+          <ArrowUp size={12} strokeWidth={4} className="animate-pulse" />
         ) : (
-          <ArrowDown size={14} strokeWidth={3} className="animate-pulse" />
+          <ArrowDown size={12} strokeWidth={4} className="animate-pulse" />
         )}
-        <span className="text-[12px] font-black tabular-nums tracking-tighter italic">
+        <span className="text-[11px] font-black tabular-nums tracking-tighter italic leading-none">
           {absDiff}
         </span>
       </div>
@@ -326,9 +320,9 @@ const RankingView: React.FC<Props> = ({
           <Leaf size={10} /> VEGANO
         </div>
       )}
-      {!sup.isGlutenFree && (
+      {sup.isGlutenFree && (
         <div className="flex items-center gap-1.5 px-1.5 py-0.5 rounded-lg bg-black text-amber-500 text-[8px] font-black uppercase tracking-tighter border border-amber-500/20 leading-none">
-          <WheatOff size={10} /> CON GLUTEN
+          <WheatOff size={10} /> SIN GLUTEN
         </div>
       )}
       <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-tighter border bg-black leading-none ${sup.origin === 'Natural' ? 'text-indigo-400 border-indigo-500/20' : 'text-purple-400 border-purple-500/20'}`}>

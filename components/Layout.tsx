@@ -3,7 +3,7 @@ import { ViewState, UserPreferences, CommunityRank, BioProfile, UserRecord } fro
 import { 
   Activity, Zap, BarChart2, Home, LayoutGrid, Users, 
   MessageCircle, TrendingUp, Moon, Sun, User, Twitter, Instagram, Facebook, Linkedin, 
-  Volume2, VolumeX, Crown, Target, Camera, X, CheckCircle, ArrowUpRight, Heart, Edit2, Check, LogOut, Lock, Key, ShieldCheck, HeartPulse, Sparkles, AlertCircle, Eye, EyeOff, Ruler, Weight, CalendarDays, Dumbbell
+  Volume2, VolumeX, Crown, Target, Camera, X, CheckCircle, ArrowUpRight, Heart, Edit2, Check, LogOut, Lock, Key, ShieldCheck, HeartPulse, Sparkles, AlertCircle, Eye, EyeOff, Ruler, Weight, CalendarDays, Dumbbell, Menu
 } from 'lucide-react';
 import { soundService } from '../services/sound';
 
@@ -65,6 +65,7 @@ const Layout: React.FC<Props> = ({
   const [profileTab, setProfileTab] = useState<'stats' | 'bio'>('stats');
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [tempName, setTempName] = useState(preferences.name || 'Carlos');
   
   const [loginNickname, setLoginNickname] = useState('');
@@ -176,20 +177,25 @@ const Layout: React.FC<Props> = ({
               <NavItem active={currentView === 'community'} label="Comunidad" onClick={() => onChangeView('community')} />
             </div>
             <div className="flex items-center space-x-2 md:space-x-4">
-              <button onClick={onToggleSound} className="p-2 text-secondary hover:text-primary transition-colors rounded-full hover:bg-primary/5">{preferences.soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}</button>
-              <button onClick={onToggleTheme} className="p-2 text-secondary hover:text-primary transition-colors rounded-full hover:bg-primary/5">{preferences.theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}</button>
-              {preferences.isLoggedIn ? (
-                <div onClick={() => { soundService.playClick(); setIsProfileOpen(!isProfileOpen); setProfileTab('stats'); }} className={`flex items-center space-x-2 text-sm font-medium text-primary px-2 py-1 rounded-full hover:bg-primary/5 cursor-pointer transition-all border ${isProfileOpen ? 'border-indigo-500/50 bg-indigo-500/5' : 'border-transparent hover:border-border'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs text-secondary border relative transition-all ${preferences.isPremium ? 'border-amber-500 bg-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.3)]' : 'border-border bg-surface'}`}>
-                    {preferences.avatar ? <img src={preferences.avatar} alt="Profile" className="w-full h-full object-cover rounded-full" /> : <User size={14} className={preferences.isPremium ? 'text-amber-500' : 'text-secondary'} />}
-                    {preferences.isPremium && <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center border-2 border-black shadow-[0_0_8px_rgba(245,158,11,0.6)] z-10 animate-float-crown"><Crown size={8} fill="currentColor" className="text-black" /></div>}
-                  </div>
-                  <span className={`hidden sm:inline ${preferences.isPremium ? 'text-amber-600 dark:text-amber-500 font-black italic uppercase tracking-tighter' : 'text-primary'}`}>{preferences.name}</span>
-                </div>
-              ) : (
-                <button onClick={() => { soundService.playClick(); setIsLoginOpen(true); }} className="flex items-center gap-2 px-4 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[11px] font-black uppercase tracking-widest italic hover:bg-white/10 transition-all text-primary"><Key size={14} className="text-indigo-600 dark:text-indigo-400" /> Identificarse</button>
-              )}
-              <button onClick={onTogglePremium} className={`text-xs font-bold px-4 py-1.5 rounded-full transition-all shadow-lg ${preferences.isPremium ? 'bg-gradient-to-r from-amber-500 to-yellow-600 text-black border border-transparent shadow-amber-500/20' : 'border border-amber-500/50 text-amber-500 hover:bg-amber-500/10'}`}>PRO</button>
+              <button onClick={() => setIsMobileMenuOpen(true)} className="md:hidden p-2 text-secondary hover:text-primary transition-colors rounded-full hover:bg-primary/5">
+                <Menu size={24} />
+              </button>
+              <div className="hidden md:flex items-center space-x-4">
+                  <button onClick={onToggleSound} className="p-2 text-secondary hover:text-primary transition-colors rounded-full hover:bg-primary/5">{preferences.soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}</button>
+                  <button onClick={onToggleTheme} className="p-2 text-secondary hover:text-primary transition-colors rounded-full hover:bg-primary/5">{preferences.theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}</button>
+                  {preferences.isLoggedIn ? (
+                    <div onClick={() => { soundService.playClick(); setIsProfileOpen(!isProfileOpen); setProfileTab('stats'); }} className={`flex items-center space-x-2 text-sm font-medium text-primary px-2 py-1 rounded-full hover:bg-primary/5 cursor-pointer transition-all border ${isProfileOpen ? 'border-indigo-500/50 bg-indigo-500/5' : 'border-transparent hover:border-border'}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs text-secondary border relative transition-all ${preferences.isPremium ? 'border-amber-500 bg-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.3)]' : 'border-border bg-surface'}`}>
+                        {preferences.avatar ? <img src={preferences.avatar} alt="Profile" className="w-full h-full object-cover rounded-full" /> : <User size={14} className={preferences.isPremium ? 'text-amber-500' : 'text-secondary'} />}
+                        {preferences.isPremium && <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center border-2 border-black shadow-[0_0_8px_rgba(245,158,11,0.6)] z-10 animate-float-crown"><Crown size={8} fill="currentColor" className="text-black" /></div>}
+                      </div>
+                      <span className={`hidden sm:inline ${preferences.isPremium ? 'text-amber-600 dark:text-amber-500 font-black italic uppercase tracking-tighter' : 'text-primary'}`}>{preferences.name}</span>
+                    </div>
+                  ) : (
+                    <button onClick={() => { soundService.playClick(); setIsLoginOpen(true); }} className="flex items-center gap-2 px-4 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[11px] font-black uppercase tracking-widest italic hover:bg-white/10 transition-all text-primary"><Key size={14} className="text-indigo-600 dark:text-indigo-400" /> Identificarse</button>
+                  )}
+                  <button onClick={onTogglePremium} className={`text-xs font-bold px-4 py-1.5 rounded-full transition-all shadow-lg ${preferences.isPremium ? 'bg-gradient-to-r from-amber-500 to-yellow-600 text-black border border-transparent shadow-amber-500/20' : 'border border-amber-500/50 text-amber-500 hover:bg-amber-500/10'}`}>PRO</button>
+              </div>
             </div>
           </div>
         </div>
@@ -367,7 +373,140 @@ const Layout: React.FC<Props> = ({
           </>
         )}
       </nav>
-      <main className="pt-16 flex-grow">{children}</main>
+      <main className="pt-16 pb-20 md:pb-0 flex-grow">{children}</main>
+
+      <nav className="fixed bottom-0 left-0 right-0 z-[90] border-t border-border bg-background/95 backdrop-blur-md md:hidden">
+        <div className="max-w-[1440px] mx-auto px-2 py-1.5 flex items-center justify-between gap-1">
+          <button
+            onClick={() => onChangeView('home')}
+            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-semibold transition-colors ${
+              currentView === 'home' ? 'text-primary bg-primary/5' : 'text-secondary'
+            }`}
+          >
+            <Home size={18} />
+            <span>Inicio</span>
+          </button>
+          <button
+            onClick={() => onChangeView('ranking')}
+            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-semibold transition-colors ${
+              currentView === 'ranking' ? 'text-primary bg-primary/5' : 'text-secondary'
+            }`}
+          >
+            <BarChart2 size={18} />
+            <span>Ranking</span>
+          </button>
+          <button
+            onClick={() => onChangeView('stacks')}
+            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-semibold transition-colors ${
+              currentView === 'stacks' ? 'text-primary bg-primary/5' : 'text-secondary'
+            }`}
+          >
+            <Zap size={18} />
+            <span>Stacks</span>
+          </button>
+          <button
+            onClick={() => onChangeView('dashboard')}
+            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-semibold transition-colors ${
+              currentView === 'dashboard' ? 'text-primary bg-primary/5' : 'text-secondary'
+            }`}
+          >
+            <LayoutGrid size={18} />
+            <span>Panel</span>
+          </button>
+          <button
+            onClick={() => onChangeView('community')}
+            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-semibold transition-colors ${
+              currentView === 'community' ? 'text-primary bg-primary/5' : 'text-secondary'
+            }`}
+          >
+            <Users size={18} />
+            <span>Comunidad</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Side Drawer Menu */}
+      {isMobileMenuOpen && (
+        <>
+          <div className="fixed inset-0 z-[150] bg-black/60 backdrop-blur-sm md:hidden" onClick={() => setIsMobileMenuOpen(false)} />
+          <div className="fixed inset-y-0 right-0 z-[160] w-[80%] max-w-[300px] bg-white dark:bg-[#0c0c0c] border-l border-border shadow-2xl md:hidden flex flex-col animate-slide-left">
+             <div className="p-6 border-b border-border flex items-center justify-between">
+                <span className="text-lg font-black uppercase italic tracking-tighter text-primary">Menú</span>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-secondary hover:text-primary"><X size={24} /></button>
+             </div>
+             
+             <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                {/* User Profile Section */}
+                {preferences.isLoggedIn ? (
+                  <div className="flex items-center gap-4 p-4 rounded-2xl bg-primary/5 border border-primary/10" onClick={() => { setIsMobileMenuOpen(false); setIsProfileOpen(true); }}>
+                    <div className="relative">
+                      {preferences.avatar ? <img src={preferences.avatar} alt="Profile" className="w-12 h-12 rounded-full object-cover border-2 border-indigo-500" /> : <div className="w-12 h-12 rounded-full bg-indigo-500/10 flex items-center justify-center border-2 border-indigo-500/20"><User size={24} className="text-indigo-500" /></div>}
+                      {preferences.isPremium && <div className="absolute -top-1 -right-1 bg-amber-500 rounded-full p-1 border-2 border-black"><Crown size={10} className="text-black" fill="currentColor" /></div>}
+                    </div>
+                    <div>
+                      <h4 className="font-black text-primary italic uppercase">{preferences.name}</h4>
+                      <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Ver Bio-Perfil</p>
+                    </div>
+                  </div>
+                ) : (
+                  <button onClick={() => { setIsMobileMenuOpen(false); setIsLoginOpen(true); }} className="w-full py-4 rounded-xl bg-indigo-600 text-white font-black uppercase tracking-widest text-xs italic shadow-lg shadow-indigo-500/30">
+                    Iniciar Sesión
+                  </button>
+                )}
+
+                {/* Additional Navigation */}
+                <div className="space-y-2">
+                  <h5 className="text-[10px] text-secondary font-black uppercase tracking-[0.2em] mb-4 opacity-60">Navegación</h5>
+                  <button onClick={() => { onChangeView('emerging'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${currentView === 'emerging' ? 'bg-primary/10 text-primary' : 'text-secondary hover:bg-primary/5'}`}>
+                    <Sparkles size={18} /> <span className="font-bold uppercase text-sm">Emergentes</span>
+                    {(!preferences.isPremium) && <Lock size={12} className="ml-auto text-amber-500" />}
+                  </button>
+                  <button onClick={() => { onChangeView('advisor'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${currentView === 'advisor' ? 'bg-primary/10 text-primary' : 'text-secondary hover:bg-primary/5'}`}>
+                    <MessageCircle size={18} /> <span className="font-bold uppercase text-sm">Advisor AI</span>
+                    {(!preferences.isPremium) && <Lock size={12} className="ml-auto text-amber-500" />}
+                  </button>
+                </div>
+
+                {/* Settings */}
+                <div className="space-y-4">
+                  <h5 className="text-[10px] text-secondary font-black uppercase tracking-[0.2em] mb-4 opacity-60">Ajustes</h5>
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border">
+                    <div className="flex items-center gap-3 text-secondary">
+                      {preferences.theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
+                      <span className="text-sm font-bold uppercase">Tema</span>
+                    </div>
+                    <button onClick={onToggleTheme} className={`w-12 h-6 rounded-full relative transition-colors ${preferences.theme === 'dark' ? 'bg-indigo-600' : 'bg-slate-300'}`}>
+                      <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${preferences.theme === 'dark' ? 'left-7' : 'left-1'}`} />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border">
+                    <div className="flex items-center gap-3 text-secondary">
+                      {preferences.soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+                      <span className="text-sm font-bold uppercase">Sonido</span>
+                    </div>
+                    <button onClick={onToggleSound} className={`w-12 h-6 rounded-full relative transition-colors ${preferences.soundEnabled ? 'bg-indigo-600' : 'bg-slate-300'}`}>
+                      <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${preferences.soundEnabled ? 'left-7' : 'left-1'}`} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* PRO Action */}
+                <button onClick={() => { onTogglePremium(); setIsMobileMenuOpen(false); }} className={`w-full py-3 rounded-xl font-black uppercase text-xs tracking-widest italic border-2 transition-all ${preferences.isPremium ? 'border-amber-500 text-amber-500 bg-amber-500/10' : 'bg-gradient-to-r from-amber-500 to-yellow-600 text-black border-transparent shadow-lg shadow-amber-500/20'}`}>
+                  {preferences.isPremium ? 'Gestionar Plan PRO' : 'Actualizar a PRO'}
+                </button>
+             </div>
+             
+             {preferences.isLoggedIn && (
+               <div className="p-6 border-t border-border">
+                 <button onClick={() => { handleLogoutClick(); setIsMobileMenuOpen(false); }} className="flex items-center gap-2 text-red-500 font-bold uppercase text-xs tracking-widest hover:text-red-600">
+                   <LogOut size={16} /> Cerrar Sesión
+                 </button>
+               </div>
+             )}
+          </div>
+        </>
+      )}
     </div>
   );
 };

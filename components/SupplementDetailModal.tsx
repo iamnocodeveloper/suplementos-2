@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Supplement, getCategoryStyle } from '../types';
 import StarRating from './StarRating';
@@ -120,7 +119,7 @@ const SupplementDetailModal: React.FC<Props> = ({
                   
                   <div className="flex gap-2">
                     {supplement.isVegan && <div className="p-1.5 rounded-lg bg-black text-emerald-500 border border-emerald-500/40 shadow-md" title="VEGANO"><Leaf size={14} /></div>}
-                    {!supplement.isGlutenFree && <div className="p-1.5 rounded-lg bg-black text-amber-500 border border-amber-500/40 shadow-md" title="SIN GLUTEN"><WheatOff size={14} /></div>}
+                    {supplement.isGlutenFree && <div className="p-1.5 rounded-lg bg-black text-amber-500 border border-amber-500/40 shadow-md" title="SIN GLUTEN"><WheatOff size={14} /></div>}
                     <div className={`p-1.5 rounded-lg bg-black border border-white/10 shadow-md ${supplement.origin === 'Natural' ? 'text-indigo-400' : 'text-purple-400'}`} title={`ORIGEN ${supplement.origin.toUpperCase()}`}>
                       {supplement.origin === 'Natural' ? <Sprout size={14} /> : <FlaskConical size={14} />}
                     </div>
@@ -346,7 +345,7 @@ const SupplementDetailModal: React.FC<Props> = ({
                  ) : (
                     <div className="flex flex-col items-center gap-1">
                       <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] italic">Votación Reservada para Miembros PRO</span>
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.1em] italic opacity-40">
+                      <p className="text-[9px] font-black text-slate-50 uppercase tracking-[0.1em] italic opacity-40">
                         {supplement.votes} Evaluaciones registradas
                       </p>
                     </div>
