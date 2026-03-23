@@ -2,19 +2,21 @@ import React, { useState } from 'react';
 import { Target, Activity, User, ArrowRight, ArrowLeft, CheckCircle2, X, Key, ShieldCheck, Info, AlertCircle } from 'lucide-react';
 import { BioProfile, UserRecord, UserPreferences } from '../types';
 import { soundService } from '../services/sound';
+import { supabase } from '../src/lib/supabase';
 
 interface Props {
   isLoggedIn: boolean;
-  onComplete: (data: BioProfile, authData?: Partial<UserRecord>) => void;
+  onComplete: (data: BioProfile) => void;
   onClose: () => void;
 }
 
 const OnboardingQuestionnaire: React.FC<Props> = ({ isLoggedIn, onComplete, onClose }) => {
   const [step, setStep] = useState(1);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('register');
-  const [nickname, setNickname] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [data, setData] = useState<Partial<BioProfile>>({
     primaryGoal: 'Bienestar general',
@@ -39,38 +41,46 @@ const OnboardingQuestionnaire: React.FC<Props> = ({ isLoggedIn, onComplete, onCl
     return db ? JSON.parse(db) : {};
   };
 
-  const handleAuth = () => {
+  const handleAuth = async () => {
     setError(null);
-    const db = getUserDB();
+    setIsLoading(true);
 
-    if (authMode === 'register') {
-      if (!nickname || !password) {
-        setError('Por favor, rellena todos los campos.');
-        return;
+    try {
+      if (authMode === 'register') {
+        if (!email || !password) {
+          setError('Por favor, ingresa tu correo y contraseña.');
+          return;
+        }
+        
+        const { data: authData, error: signUpError } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: {
+            data: { full_name: 'Nuevo Biohacker' }
+          }
+        });
+
+        if (signUpError) throw signUpError;
+        
+        if (authData.session) {
+          onComplete(data as BioProfile);
+        } else {
+          alert('Cuenta creada. Confirma tu correo para sincronizar.');
+          onComplete(data as BioProfile);
+        }
+      } else {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password
+        });
+
+        if (signInError) throw signInError;
+        onComplete(data as BioProfile);
       }
-      if (db[nickname]) {
-        setError('Este nombre de usuario o correo ya está registrado.');
-        return;
-      }
-      // Proceder con el completado guardando los datos básicos + password para el primer registro
-      onComplete(data as BioProfile, { 
-        userId: nickname, 
-        name: nickname, 
-        isLoggedIn: true,
-        password: password
-      });
-    } else {
-      const user = db[nickname];
-      if (!user || user.password !== password) {
-        setError('Credenciales incorrectas.');
-        return;
-      }
-      // Loguear y fusionar datos
-      onComplete(data as BioProfile, { 
-        userId: nickname, 
-        name: user.name, 
-        isLoggedIn: true 
-      });
+    } catch (err: any) {
+      setError(err.message || 'Error de sincronización.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -230,9 +240,9 @@ const OnboardingQuestionnaire: React.FC<Props> = ({ isLoggedIn, onComplete, onCl
                     </div>
                   )}
                   <div className="space-y-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 italic">Identificador Biohacker</label>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 italic">Correo Electrónico</label>
                     <div className="relative">
-                      <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="Usuario o Email" className="w-full bg-white border-2 border-slate-200 rounded-2xl px-12 py-4 outline-none focus:border-indigo-600 text-slate-950 font-black shadow-sm" />
+                      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="biohacker@ejemplo.com" className="w-full bg-white border-2 border-slate-200 rounded-2xl px-12 py-4 outline-none focus:border-indigo-600 text-slate-950 font-black shadow-sm" />
                       <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
                     </div>
                   </div>
@@ -270,8 +280,8 @@ const OnboardingQuestionnaire: React.FC<Props> = ({ isLoggedIn, onComplete, onCl
       <div className="p-10 border-t border-slate-100 bg-slate-50/50">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <button onClick={prevStep} disabled={step === 1} className={`flex items-center gap-2 text-xs font-black uppercase italic tracking-widest transition-all ${step === 1 ? 'opacity-0' : 'text-slate-400 hover:text-slate-950'}`}><ArrowLeft size={16} /> Volver</button>
-          <button onClick={nextStep} className="group flex items-center gap-5 px-12 py-5 bg-indigo-600 text-white rounded-full font-black uppercase text-xs tracking-[0.3em] italic shadow-xl shadow-indigo-200 hover:bg-indigo-500 hover:-translate-y-1 transition-all">
-            {step === 6 ? (isLoggedIn ? 'Guardar y Sincronizar' : (authMode === 'register' ? 'Registrarse y Guardar' : 'Entrar y Guardar')) : 'Continuar'} <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
+          <button onClick={nextStep} disabled={isLoading} className="group flex items-center gap-5 px-12 py-5 bg-indigo-600 text-white rounded-full font-black uppercase text-xs tracking-[0.3em] italic shadow-xl shadow-indigo-200 hover:bg-indigo-500 hover:-translate-y-1 transition-all disabled:opacity-50">
+            {isLoading ? 'Sincronizando...' : (step === 6 ? (isLoggedIn ? 'Guardar Bio-Perfil' : (authMode === 'register' ? 'Registrarse y Guardar' : 'Entrar y Guardar')) : 'Continuar')} <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
           </button>
         </div>
       </div>

@@ -51,11 +51,6 @@ const App: React.FC = () => {
   const [activeSuppIds, setActiveSuppIds] = useState<string[]>([]);
   const [isSyncingScientific, setIsSyncingScientific] = useState(false);
   
-  const getUserDB = useCallback((): Record<string, UserRecord> => {
-    const db = localStorage.getItem('SI_USER_DATABASE');
-    return db ? JSON.parse(db) : {};
-  }, []);
-
   const [preferences, setPreferences] = useState<UserPreferences>(() => {
     const saved = localStorage.getItem('user_prefs');
     const defaultPrefs: UserPreferences = {
@@ -70,67 +65,72 @@ const App: React.FC = () => {
       reputation: { totalPoints: 0, likesReceived: 0, usefulReceived: 0 }
     };
     if (!saved) return defaultPrefs;
-    return { ...defaultPrefs, ...JSON.parse(saved) };
+    const parsed = JSON.parse(saved);
+    return { ...defaultPrefs, ...parsed, isLoggedIn: false }; // Always require login on mount for security/sync
   });
 
   // Supabase Auth Listener
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session) {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
+      try {
+        if (session) {
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
 
-        if (profile) {
-          setPreferences(prev => ({
-            ...prev,
-            isLoggedIn: true,
-            userId: session.user.id,
-            name: profile.full_name || profile.username || 'Usuario',
-            isPremium: profile.is_premium,
-            avatar: profile.avatar_url,
-            reputation: {
-              totalPoints: profile.reputation_points,
-              likesReceived: profile.likes_received,
-              usefulReceived: profile.useful_received,
-            },
-            bioProfile: profile.bio_profile
-          }));
+          if (profile) {
+            setPreferences(prev => ({
+              ...prev,
+              isLoggedIn: true,
+              userId: session.user.id,
+              name: profile.full_name || profile.username || 'Usuario',
+              isPremium: profile.is_premium,
+              avatar: profile.avatar_url,
+              reputation: {
+                totalPoints: profile.reputation_points || 0,
+                likesReceived: profile.likes_received || 0,
+                usefulReceived: profile.useful_received || 0,
+              },
+              bioProfile: profile.bio_profile
+            }));
 
-          const { data: protocols } = await supabase
-            .from('user_protocols')
-            .select('protocol_id')
-            .eq('user_id', session.user.id);
+            const { data: protocols } = await supabase
+              .from('user_protocols')
+              .select('protocol_id')
+              .eq('user_id', session.user.id);
 
-          if (protocols) {
-            setActiveSuppIds(protocols.map(p => p.protocol_id));
+            if (protocols) {
+              setActiveSuppIds(protocols.map(p => p.protocol_id));
+            }
+          } else {
+            // Create profile if missing
+            const newProfile = {
+              id: session.user.id,
+              full_name: session.user.user_metadata.full_name || 'Nuevo Biohacker',
+              updated_at: new Date().toISOString(),
+            };
+            await supabase.from('profiles').upsert(newProfile);
+            setPreferences(prev => ({ 
+              ...prev, 
+              isLoggedIn: true, 
+              userId: session.user.id,
+              name: newProfile.full_name 
+            }));
           }
         } else {
-          // Create profile if missing
-          const newProfile = {
-            id: session.user.id,
-            full_name: session.user.user_metadata.full_name || 'Nuevo Biohacker',
-            updated_at: new Date().toISOString(),
-          };
-          await supabase.from('profiles').upsert(newProfile);
           setPreferences(prev => ({ 
             ...prev, 
-            isLoggedIn: true, 
-            userId: session.user.id,
-            name: newProfile.full_name 
+            isLoggedIn: false, 
+            userId: undefined,
+            name: 'Invitado',
+            isPremium: false 
           }));
+          setActiveSuppIds([]);
         }
-      } else {
-        setPreferences(prev => ({ 
-          ...prev, 
-          isLoggedIn: false, 
-          userId: undefined,
-          name: 'Invitado',
-          isPremium: false 
-        }));
-        setActiveSuppIds([]);
+      } catch (err) {
+        console.error("Error en flujo de autenticación:", err);
       }
     });
 
@@ -201,21 +201,6 @@ const App: React.FC = () => {
     };
   }, [preferences.lastScientificSync, triggerScientificRecalibration]);
 
-  const loadUserFromDB = useCallback((userId: string) => {
-    const db = getUserDB();
-    const user = db[userId];
-    if (user) {
-      setPreferences({ ...user, isLoggedIn: true });
-      setActiveSuppIds(user.activeProtocols || []);
-      localStorage.setItem('activation_dates', JSON.stringify(user.activationDates || {}));
-      localStorage.setItem('SI_SUPPLEMENT_LOGS', JSON.stringify(user.supplementLogs || {}));
-      localStorage.setItem('SI_CURRENT_USER_ID', userId);
-      
-      if (user.isPremium) {
-        soundService.playPremium();
-      }
-    }
-  }, [getUserDB]);
 
   const saveUserToDB = useCallback(async (userId: string, prefs: UserPreferences, protocols: string[]) => {
     // Sync with Supabase
@@ -429,33 +414,26 @@ const App: React.FC = () => {
     setCurrentView('home');
   }, []);
 
-  const handleOnboardingComplete = useCallback((bioProfile: BioProfile, authData?: Partial<UserRecord>) => {
+  const handleOnboardingComplete = useCallback(async (bioProfile: BioProfile) => {
     soundService.playClick();
-    if (authData) {
-      const db = getUserDB();
-      const userId = authData.userId || preferences.userId || `user_${Date.now()}`;
-      const existingUser = db[userId] || {};
-      const updatedUser: UserRecord = {
-        ...existingUser,
-        ...preferences,
-        ...authData,
-        userId,
-        bioProfile,
-        isLoggedIn: true,
-        activeProtocols: activeSuppIds,
-        activationDates: JSON.parse(localStorage.getItem('activation_dates') || '{}'),
-        supplementLogs: JSON.parse(localStorage.getItem('SI_SUPPLEMENT_LOGS') || '{}'),
-      } as UserRecord;
-      db[userId] = updatedUser;
-      localStorage.setItem('SI_USER_DATABASE', JSON.stringify(db));
-      localStorage.setItem('SI_CURRENT_USER_ID', userId);
-      setPreferences(updatedUser);
-      if (updatedUser.isPremium) soundService.playPremium();
-    } else {
-      handleUpdatePreferences({ bioProfile });
+    
+    // Update local preferences first for immediate UI response
+    setPreferences(prev => ({ ...prev, bioProfile }));
+    
+    // If logged in, sync with Supabase
+    if (preferences.isLoggedIn && preferences.userId) {
+      try {
+        await supabase.from('profiles').update({
+          bio_profile: bioProfile,
+          updated_at: new Date().toISOString()
+        }).eq('id', preferences.userId);
+      } catch (err) {
+        console.error("Error sincronizando bio-perfil:", err);
+      }
     }
+    
     setShowOnboarding(false);
-  }, [getUserDB, preferences, activeSuppIds, handleUpdatePreferences]);
+  }, [preferences.isLoggedIn, preferences.userId]);
 
   const renderContent = () => {
     const commonProps = {

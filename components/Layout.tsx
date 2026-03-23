@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { ViewState, UserPreferences, CommunityRank, BioProfile, UserRecord } from '../types';
 import { 
   Activity, Zap, BarChart2, Home, LayoutGrid, Users, 
@@ -98,8 +98,18 @@ const Layout: React.FC<Props> = ({
     return 'Amateur';
   }, [currentScore]);
 
+  // Handle auto-close modal when session is detected
+  useEffect(() => {
+    if (preferences.isLoggedIn && isLoginOpen) {
+      setIsLoginOpen(false);
+      setAuthLoading(false);
+    }
+  }, [preferences.isLoggedIn, isLoginOpen]);
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (authLoading) return;
+    
     setLoginError(null);
     setAuthLoading(true);
     soundService.playClick();
@@ -107,18 +117,22 @@ const Layout: React.FC<Props> = ({
     try {
       if (authMode === 'login') {
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: loginEmail,
+          email: loginEmail.trim(),
           password: loginPassword,
         });
 
-        if (error) throw error;
+        if (error) {
+           if (error.message.includes('Email not confirmed')) {
+             throw new Error('Sincronización pendiente: Verifica tu correo electrónico.');
+           }
+           throw error;
+        }
         
-        // Profiles are handled in App.tsx via session listener usually, 
-        // but here we trigger a manual update via preferences
         setIsLoginOpen(false);
+        setAuthLoading(false);
       } else {
         const { data, error } = await supabase.auth.signUp({
-          email: loginEmail,
+          email: loginEmail.trim(),
           password: loginPassword,
           options: {
             data: {
@@ -129,12 +143,17 @@ const Layout: React.FC<Props> = ({
 
         if (error) throw error;
         
-        alert('Registro exitoso. Revisa tu correo para confirmar la cuenta.');
-        setAuthMode('login');
+        if (data.user && data.session) {
+           setIsLoginOpen(false);
+           setAuthLoading(false);
+        } else {
+           alert('Protocolo de Registro Iniciado: Revisa tu correo para confirmar tu bio-identidad.');
+           setAuthMode('login');
+           setAuthLoading(false);
+        }
       }
     } catch (err: any) {
       setLoginError(err.message || 'Error en la autenticación');
-    } finally {
       setAuthLoading(false);
     }
   };
