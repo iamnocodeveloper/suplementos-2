@@ -14,6 +14,7 @@ import { INITIAL_SUPPLEMENTS } from './data';
 import { soundService } from './services/sound';
 import { runWeeklyScientificReview } from './services/evidenceEngine';
 import { Crown, ArrowUpRight, Zap, Lock } from 'lucide-react';
+import { supabase } from './src/lib/supabase';
 
 const PremiumGate: React.FC<{ section: string, onAttemptUpgrade: () => void }> = ({ section, onAttemptUpgrade }) => (
   <div className="relative min-h-[70vh] flex items-center justify-center p-8">
@@ -57,8 +58,6 @@ const App: React.FC = () => {
 
   const [preferences, setPreferences] = useState<UserPreferences>(() => {
     const saved = localStorage.getItem('user_prefs');
-    const defaultLastSync = Date.now(); 
-    
     const defaultPrefs: UserPreferences = {
       isLoggedIn: false,
       soundEnabled: true,
@@ -67,14 +66,76 @@ const App: React.FC = () => {
       themeIntensity: 50,
       visionScale: 1.0,
       name: 'Invitado',
-      lastScientificSync: defaultLastSync,
+      lastScientificSync: Date.now(),
       reputation: { totalPoints: 0, likesReceived: 0, usefulReceived: 0 }
     };
-
     if (!saved) return defaultPrefs;
-    const parsed = JSON.parse(saved);
-    return { ...defaultPrefs, ...parsed };
+    return { ...defaultPrefs, ...JSON.parse(saved) };
   });
+
+  // Supabase Auth Listener
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile) {
+          setPreferences(prev => ({
+            ...prev,
+            isLoggedIn: true,
+            userId: session.user.id,
+            name: profile.full_name || profile.username || 'Usuario',
+            isPremium: profile.is_premium,
+            avatar: profile.avatar_url,
+            reputation: {
+              totalPoints: profile.reputation_points,
+              likesReceived: profile.likes_received,
+              usefulReceived: profile.useful_received,
+            },
+            bioProfile: profile.bio_profile
+          }));
+
+          const { data: protocols } = await supabase
+            .from('user_protocols')
+            .select('protocol_id')
+            .eq('user_id', session.user.id);
+
+          if (protocols) {
+            setActiveSuppIds(protocols.map(p => p.protocol_id));
+          }
+        } else {
+          // Create profile if missing
+          const newProfile = {
+            id: session.user.id,
+            full_name: session.user.user_metadata.full_name || 'Nuevo Biohacker',
+            updated_at: new Date().toISOString(),
+          };
+          await supabase.from('profiles').upsert(newProfile);
+          setPreferences(prev => ({ 
+            ...prev, 
+            isLoggedIn: true, 
+            userId: session.user.id,
+            name: newProfile.full_name 
+          }));
+        }
+      } else {
+        setPreferences(prev => ({ 
+          ...prev, 
+          isLoggedIn: false, 
+          userId: undefined,
+          name: 'Invitado',
+          isPremium: false 
+        }));
+        setActiveSuppIds([]);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const [supplements, setSupplements] = useState<Supplement[]>(() => {
     const saved = localStorage.getItem('app_supplements');
@@ -156,39 +217,44 @@ const App: React.FC = () => {
     }
   }, [getUserDB]);
 
-  const saveUserToDB = useCallback((userId: string, prefs: UserPreferences, protocols: string[]) => {
-    const db = getUserDB();
-    const existing = db[userId] || {};
-    db[userId] = {
-      ...existing,
-      ...prefs,
-      userId,
-      activeProtocols: protocols,
-      activationDates: JSON.parse(localStorage.getItem('activation_dates') || '{}'),
-      supplementLogs: JSON.parse(localStorage.getItem('SI_SUPPLEMENT_LOGS') || '{}'),
-    } as UserRecord;
-    localStorage.setItem('SI_USER_DATABASE', JSON.stringify(db));
-    localStorage.setItem('SI_CURRENT_USER_ID', userId);
-  }, [getUserDB]);
+  const saveUserToDB = useCallback(async (userId: string, prefs: UserPreferences, protocols: string[]) => {
+    // Sync with Supabase
+    await supabase.from('profiles').update({
+      full_name: prefs.name,
+      avatar_url: prefs.avatar,
+      is_premium: prefs.isPremium,
+      reputation_points: prefs.reputation.totalPoints,
+      likes_received: prefs.reputation.likesReceived,
+      useful_received: prefs.reputation.usefulReceived,
+      bio_profile: prefs.bioProfile,
+      updated_at: new Date().toISOString(),
+    }).eq('id', userId);
+
+    // Sync Protocols
+    // Optimized approach: delete ones not in current list and add missing ones
+    const { data: current } = await supabase.from('user_protocols').select('protocol_id').eq('user_id', userId);
+    const existingIds = current?.map(p => p.protocol_id) || [];
+    
+    const toAdd = protocols.filter(id => !existingIds.includes(id)).map(id => ({ user_id: userId, protocol_id: id }));
+    const toRemove = existingIds.filter(id => !protocols.includes(id));
+
+    if (toAdd.length) await supabase.from('user_protocols').insert(toAdd);
+    if (toRemove.length) await supabase.from('user_protocols').delete().in('protocol_id', toRemove).eq('user_id', userId);
+
+  }, []);
 
   useEffect(() => {
-    const lastUserId = localStorage.getItem('SI_CURRENT_USER_ID');
-    if (lastUserId && !preferences.isLoggedIn) {
-      loadUserFromDB(lastUserId);
-    }
-  }, [loadUserFromDB, preferences.isLoggedIn]);
-
-  useEffect(() => {
-    soundService.setEnabled(preferences.soundEnabled);
-  }, [preferences.soundEnabled]);
-
-  useEffect(() => {
-    localStorage.setItem('user_prefs', JSON.stringify(preferences));
-    localStorage.setItem('app_supplements', JSON.stringify(supplements));
+    localStorage.setItem('user_prefs', JSON.stringify({
+      theme: preferences.theme,
+      themeIntensity: preferences.themeIntensity,
+      soundEnabled: preferences.soundEnabled,
+      visionScale: preferences.visionScale
+    }));
+    
     if (preferences.isLoggedIn && preferences.userId) {
       saveUserToDB(preferences.userId, preferences, activeSuppIds);
     }
-  }, [preferences, supplements, activeSuppIds, saveUserToDB]);
+  }, [preferences.theme, preferences.themeIntensity, preferences.soundEnabled, preferences.visionScale, preferences.isLoggedIn, preferences.userId, activeSuppIds, saveUserToDB]);
 
   useEffect(() => {
     if (preferences.theme === 'dark') document.documentElement.classList.add('dark');
@@ -357,26 +423,11 @@ const App: React.FC = () => {
     setCurrentView(view);
   }, []);
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = useCallback(async () => {
     soundService.playClick();
-    if (preferences.isLoggedIn && preferences.userId) {
-      saveUserToDB(preferences.userId, preferences, activeSuppIds);
-    }
-    localStorage.removeItem('SI_CURRENT_USER_ID');
-    setPreferences({
-      isLoggedIn: false,
-      soundEnabled: preferences.soundEnabled,
-      isPremium: false,
-      theme: preferences.theme,
-      themeIntensity: preferences.themeIntensity,
-      visionScale: preferences.visionScale,
-      name: 'Invitado',
-      lastScientificSync: preferences.lastScientificSync,
-      reputation: { totalPoints: 0, likesReceived: 0, usefulReceived: 0 }
-    });
-    setActiveSuppIds([]);
+    await supabase.auth.signOut();
     setCurrentView('home');
-  }, [preferences, activeSuppIds, saveUserToDB]);
+  }, []);
 
   const handleOnboardingComplete = useCallback((bioProfile: BioProfile, authData?: Partial<UserRecord>) => {
     soundService.playClick();

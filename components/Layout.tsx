@@ -3,9 +3,10 @@ import { ViewState, UserPreferences, CommunityRank, BioProfile, UserRecord } fro
 import { 
   Activity, Zap, BarChart2, Home, LayoutGrid, Users, 
   MessageCircle, TrendingUp, Moon, Sun, User, Twitter, Instagram, Facebook, Linkedin, 
-  Volume2, VolumeX, Crown, Target, Camera, X, CheckCircle, ArrowUpRight, Heart, Edit2, Check, LogOut, Lock, Key, ShieldCheck, HeartPulse, Sparkles, AlertCircle, Eye, EyeOff, Ruler, Weight, CalendarDays, Dumbbell, Menu
+  Volume2, VolumeX, Crown, Target, Camera, X, CheckCircle, ArrowUpRight, Heart, Edit2, Check, LogOut, Lock, Key, ShieldCheck, HeartPulse, Sparkles, AlertCircle, Eye, EyeOff, Ruler, Weight, CalendarDays, Dumbbell, Menu, Mail, UserPlus
 } from 'lucide-react';
 import { soundService } from '../services/sound';
+import { supabase } from '../src/lib/supabase';
 
 interface Props {
   children: React.ReactNode;
@@ -64,12 +65,15 @@ const Layout: React.FC<Props> = ({
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [profileTab, setProfileTab] = useState<'stats' | 'bio'>('stats');
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [isEditingName, setIsEditingName] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [tempName, setTempName] = useState(preferences.name || 'Carlos');
   
-  const [loginNickname, setLoginNickname] = useState('');
+  const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [registerName, setRegisterName] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -94,28 +98,45 @@ const Layout: React.FC<Props> = ({
     return 'Amateur';
   }, [currentScore]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError(null);
+    setAuthLoading(true);
     soundService.playClick();
 
-    const dbStr = localStorage.getItem('SI_USER_DATABASE');
-    const db: Record<string, UserRecord> = dbStr ? JSON.parse(dbStr) : {};
+    try {
+      if (authMode === 'login') {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: loginEmail,
+          password: loginPassword,
+        });
 
-    const user = db[loginNickname];
-    if (!user || user.password !== loginPassword) {
-      setLoginError('Identificador o clave incorrectos.');
-      return;
+        if (error) throw error;
+        
+        // Profiles are handled in App.tsx via session listener usually, 
+        // but here we trigger a manual update via preferences
+        setIsLoginOpen(false);
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email: loginEmail,
+          password: loginPassword,
+          options: {
+            data: {
+              full_name: registerName,
+            }
+          }
+        });
+
+        if (error) throw error;
+        
+        alert('Registro exitoso. Revisa tu correo para confirmar la cuenta.');
+        setAuthMode('login');
+      }
+    } catch (err: any) {
+      setLoginError(err.message || 'Error en la autenticación');
+    } finally {
+      setAuthLoading(false);
     }
-
-    onUpdatePreferences({ 
-      ...user,
-      isLoggedIn: true,
-      userId: loginNickname 
-    });
-    setIsLoginOpen(false);
-    setLoginNickname('');
-    setLoginPassword('');
   };
 
   const handleLogoutClick = () => {
@@ -132,28 +153,47 @@ const Layout: React.FC<Props> = ({
             <button onClick={() => setIsLoginOpen(false)} className="absolute top-6 right-6 text-slate-400 dark:text-white/20 hover:text-slate-900 dark:hover:text-white transition-colors"><X size={20} /></button>
             <div className="p-8 sm:p-10 space-y-8">
               <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl mb-6 rotate-3"><ShieldCheck size={32} className="text-white" /></div>
-                <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">Acceso de Usuario</h3>
-                <p className="text-sm text-secondary italic mt-2">Inicia sesión para sincronizar tus protocolos.</p>
+                <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl mb-6 rotate-3">
+                  {authMode === 'login' ? <ShieldCheck size={32} className="text-white" /> : <UserPlus size={32} className="text-white" />}
+                </div>
+                <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">
+                  {authMode === 'login' ? 'Acceso de Usuario' : 'Crear Perfil'}
+                </h3>
+                <p className="text-sm text-secondary italic mt-2">
+                  {authMode === 'login' ? 'Inicia sesión para sincronizar tus protocolos.' : 'Únete a la comunidad de biohacking.'}
+                </p>
               </div>
-              <form onSubmit={handleLogin} className="space-y-4">
+              <form onSubmit={handleAuth} className="space-y-4">
                 {loginError && (
                   <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-500 text-xs font-bold animate-fade-in">
                     <AlertCircle size={16} /> {loginError}
                   </div>
                 )}
+                {authMode === 'register' && (
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-secondary uppercase tracking-widest px-2 italic">Nombre Completo</label>
+                    <input type="text" value={registerName} onChange={(e) => setRegisterName(e.target.value)} placeholder="Tu nombre" className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 outline-none focus:border-indigo-500/50 text-slate-900 dark:text-white italic" required />
+                  </div>
+                )}
                 <div className="space-y-1">
-                  <label className="text-[10px] font-black text-secondary uppercase tracking-widest px-2 italic">Identificador Biohacker</label>
-                  <input type="text" value={loginNickname} onChange={(e) => setLoginNickname(e.target.value)} placeholder="Usuario / Email" className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 outline-none focus:border-indigo-500/50 text-slate-900 dark:text-white italic" required />
+                  <label className="text-[10px] font-black text-secondary uppercase tracking-widest px-2 italic">Correo Electrónico</label>
+                  <input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder="biohacker@ejemplo.com" className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 outline-none focus:border-indigo-500/50 text-slate-900 dark:text-white italic" required />
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-black text-secondary uppercase tracking-widest px-2 italic">Clave de Acceso</label>
                   <input type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder="••••••••" className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 outline-none focus:border-indigo-500/50 text-slate-900 dark:text-white italic" required />
                 </div>
-                <button type="submit" className="w-full py-4 rounded-2xl bg-indigo-600 text-white font-black uppercase text-xs tracking-[0.3em] italic shadow-xl shadow-indigo-500/20 hover:bg-indigo-500 transition-all mt-4">Sincronizar Datos</button>
+                <button type="submit" disabled={authLoading} className="w-full py-4 rounded-2xl bg-indigo-600 text-white font-black uppercase text-xs tracking-[0.3em] italic shadow-xl shadow-indigo-500/20 hover:bg-indigo-500 transition-all mt-4 disabled:opacity-50">
+                  {authLoading ? 'Sincronizando...' : (authMode === 'login' ? 'Sincronizar Datos' : 'Registrar Perfil')}
+                </button>
               </form>
               <div className="text-center">
-                <p className="text-[10px] text-secondary/40 font-bold uppercase tracking-widest">¿Nuevo en el laboratorio? <button onClick={() => { setIsLoginOpen(false); onStartOnboarding(); }} className="text-indigo-600 dark:text-indigo-400 hover:underline">Crear Perfil</button></p>
+                <p className="text-[10px] text-secondary/40 font-bold uppercase tracking-widest">
+                  {authMode === 'login' ? '¿Nuevo en el laboratorio?' : '¿Ya tienes un perfil?'} 
+                  <button onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')} className="text-indigo-600 dark:text-indigo-400 hover:underline ml-1">
+                    {authMode === 'login' ? 'Crear Perfil' : 'Iniciar Sesión'}
+                  </button>
+                </p>
               </div>
             </div>
           </div>
@@ -388,8 +428,8 @@ const Layout: React.FC<Props> = ({
           </button>
           <button
             onClick={() => onChangeView('ranking')}
-            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-semibold transition-colors ${
-              currentView === 'ranking' ? 'text-primary bg-primary/5' : 'text-secondary'
+            className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 rounded-2xl text-[9px] font-black uppercase italic tracking-widest transition-all duration-300 ${
+              currentView === 'ranking' ? 'text-indigo-600 bg-indigo-600/10 shadow-[0_0_15px_rgba(79,70,229,0.2)] scale-110' : 'text-secondary hover:text-primary'
             }`}
           >
             <BarChart2 size={18} />
@@ -397,17 +437,26 @@ const Layout: React.FC<Props> = ({
           </button>
           <button
             onClick={() => onChangeView('stacks')}
-            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-semibold transition-colors ${
-              currentView === 'stacks' ? 'text-primary bg-primary/5' : 'text-secondary'
+            className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 rounded-2xl text-[9px] font-black uppercase italic tracking-widest transition-all duration-300 ${
+              currentView === 'stacks' ? 'text-indigo-600 bg-indigo-600/10 shadow-[0_0_15px_rgba(79,70,229,0.2)] scale-110' : 'text-secondary hover:text-primary'
             }`}
           >
             <Zap size={18} />
             <span>Stacks</span>
           </button>
           <button
+            onClick={() => onChangeView('advisor')}
+            className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 rounded-2xl text-[9px] font-black uppercase italic tracking-widest transition-all duration-300 ${
+              currentView === 'advisor' ? 'text-indigo-600 bg-indigo-600/10 shadow-[0_0_15px_rgba(79,70,229,0.2)] scale-110' : 'text-secondary hover:text-primary'
+            }`}
+          >
+            <MessageCircle size={18} />
+            <span>AI</span>
+          </button>
+          <button
             onClick={() => onChangeView('dashboard')}
-            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-semibold transition-colors ${
-              currentView === 'dashboard' ? 'text-primary bg-primary/5' : 'text-secondary'
+            className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 rounded-2xl text-[9px] font-black uppercase italic tracking-widest transition-all duration-300 ${
+              currentView === 'dashboard' ? 'text-indigo-600 bg-indigo-600/10 shadow-[0_0_15px_rgba(79,70,229,0.2)] scale-110' : 'text-secondary hover:text-primary'
             }`}
           >
             <LayoutGrid size={18} />
@@ -415,12 +464,12 @@ const Layout: React.FC<Props> = ({
           </button>
           <button
             onClick={() => onChangeView('community')}
-            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-1 rounded-xl text-[10px] font-semibold transition-colors ${
-              currentView === 'community' ? 'text-primary bg-primary/5' : 'text-secondary'
+            className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 rounded-2xl text-[9px] font-black uppercase italic tracking-widest transition-all duration-300 ${
+              currentView === 'community' ? 'text-indigo-600 bg-indigo-600/10 shadow-[0_0_15px_rgba(79,70,229,0.2)] scale-110' : 'text-secondary hover:text-primary'
             }`}
           >
             <Users size={18} />
-            <span>Comunidad</span>
+            <span>Social</span>
           </button>
         </div>
       </nav>

@@ -683,13 +683,13 @@ const Dashboard: React.FC<Props> = ({
               <div className="flex bg-slate-200 dark:bg-white/5 p-1 rounded-xl border border-slate-300 dark:border-white/5 shadow-inner">
                  <button 
                   onClick={() => { soundService.playClick(); setShowYearlyCalendar(false); }}
-                  className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${!showYearlyCalendar ? 'bg-amber-500 text-black shadow-lg' : 'text-secondary hover:text-indigo-600 dark:hover:text-white'}`}
+                  className={`px-3 sm:px-4 py-1.5 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${!showYearlyCalendar ? 'bg-amber-500 text-black shadow-lg' : 'text-secondary hover:text-indigo-600 dark:hover:text-white'}`}
                  >
                    Semanal
                  </button>
                  <button 
                   onClick={() => { soundService.playClick(); setShowYearlyCalendar(true); }}
-                  className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${showYearlyCalendar ? 'bg-amber-500 text-black shadow-lg' : 'text-secondary hover:text-indigo-600 dark:hover:text-white'}`}
+                  className={`px-3 sm:px-4 py-1.5 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${showYearlyCalendar ? 'bg-amber-500 text-black shadow-lg' : 'text-secondary hover:text-indigo-600 dark:hover:text-white'}`}
                  >
                    Anual
                  </button>
@@ -743,7 +743,7 @@ const Dashboard: React.FC<Props> = ({
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-7 gap-3 animate-fade-in">
+          <div className="grid grid-cols-7 gap-1.5 sm:gap-3 animate-fade-in">
             {weeklyDates.map((date, i) => {
               const dateStr = getLocalDateStr(date);
               const isSelected = dateStr === selectedDateStr;
@@ -757,22 +757,22 @@ const Dashboard: React.FC<Props> = ({
 
               return (
                 <button 
-                  key={i}
+                  key={i} 
                   onClick={() => { soundService.playClick(); setSelectedDate(new Date(date)); }}
                   className={`
-                    relative p-4 rounded-[1.5rem] border-2 flex flex-col items-center justify-center gap-2 transition-all duration-500 overflow-hidden
+                    relative p-2 sm:p-4 rounded-[1rem] sm:rounded-[1.5rem] border-2 flex flex-col items-center justify-center gap-1 sm:gap-2 transition-all duration-500 overflow-hidden
                     ${isSelected ? 'bg-amber-500/15 border-amber-600 shadow-lg' : 'bg-surface border-border/80 hover:border-amber-500/40'}
                     ${!hasActivity && !isToday ? 'opacity-50 grayscale shadow-inner' : 'opacity-100 shadow-sm'}
                   `}
                 >
-                  <span className={`text-[10px] font-black tracking-widest ${isSelected ? 'text-amber-700 dark:text-amber-500' : 'text-secondary'}`}>{dayName}</span>
-                  <span className={`text-3xl font-black italic tracking-tighter ${isSelected ? 'text-primary' : 'text-primary/70'}`}>{dayNum}</span>
+                  <span className={`text-[8px] sm:text-[10px] font-black tracking-widest ${isSelected ? 'text-amber-700 dark:text-amber-500' : 'text-secondary'}`}>{dayName}</span>
+                  <span className={`text-xl sm:text-3xl font-black italic tracking-tighter ${isSelected ? 'text-primary' : 'text-primary/70'}`}>{dayNum}</span>
                   {hasActivity && (
-                    <div className="w-full h-1.5 bg-slate-200 dark:bg-white/10 rounded-full mt-2 overflow-hidden shadow-inner border border-black/5">
+                    <div className="w-full h-1 sm:h-1.5 bg-slate-200 dark:bg-white/10 rounded-full mt-1 sm:mt-2 overflow-hidden shadow-inner border border-black/5">
                       <div className={`h-full bg-amber-600 dark:bg-amber-500 transition-all duration-1000 shadow-[0_0_10px_rgba(245,158,11,0.6)]`} style={{ width: `${dayAdherence}%` }} />
                     </div>
                   )}
-                  {isToday && <div className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-amber-600 animate-pulse shadow-[0_0_10px_#D97706]" />}
+                  {isToday && <div className="absolute top-1 right-1 sm:top-2.5 sm:right-2.5 w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-600 animate-pulse shadow-[0_0_10px_#D97706]" />}
                 </button>
               );
             })}
@@ -784,7 +784,7 @@ const Dashboard: React.FC<Props> = ({
       <div className={`p-6 md:p-10 rounded-[3rem] border-2 backdrop-blur-2xl transition-all duration-1000 relative flex flex-col md:flex-row items-center gap-12 shadow-xl ${adherencePercent === 100 ? 'bg-emerald-600/[0.05] border-emerald-600/50 shadow-emerald-600/10' : 'bg-amber-600/[0.05] border-amber-600/50 shadow-amber-600/10'}`}>
          
          <div className={`
-            relative w-44 h-44 flex-shrink-0 flex items-center justify-center rounded-full border-2 transition-all duration-[2.5s] ease-in-out shadow-inner
+            relative w-32 h-32 sm:w-44 sm:h-44 flex-shrink-0 flex items-center justify-center rounded-full border-2 transition-all duration-[2.5s] ease-in-out shadow-inner
             ${adherencePercent === 100 
               ? 'bg-emerald-600/10 border-emerald-600/30' 
               : 'bg-amber-600/10 border-amber-600/30'}
@@ -811,7 +811,7 @@ const Dashboard: React.FC<Props> = ({
             <div className="relative z-20 flex flex-col items-center justify-center">
               <div className="flex items-baseline gap-0.5">
                 <span className={`
-                  text-6xl font-black italic tracking-tighter leading-none transition-all duration-[2.5s]
+                  text-4xl sm:text-6xl font-black italic tracking-tighter leading-none transition-all duration-[2.5s]
                   ${adherencePercent === 100 ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-500'}
                 `}>
                   {adherencePercent}
@@ -836,10 +836,10 @@ const Dashboard: React.FC<Props> = ({
                   <Activity size={28} className={adherencePercent < 100 && isViewingToday ? "animate-pulse" : ""} />
                </div>
                <div>
-                 <h3 className={`text-4xl font-black uppercase italic tracking-tighter leading-none transition-all duration-1000 drop-shadow-sm ${adherencePercent === 100 ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-500'}`}>
+                 <h3 className={`text-2xl sm:text-4xl font-black uppercase italic tracking-tighter leading-none transition-all duration-1000 drop-shadow-sm ${adherencePercent === 100 ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-500'}`}>
                    {adherencePercent === 100 ? 'SINCRONÍA MAESTRA' : (isViewingToday ? 'PANEL BIOMÉTRICO' : `REPORTE: ${selectedDate.toLocaleDateString('es-ES')}`)}
                  </h3>
-                 <p className="text-[12px] text-slate-600 dark:text-white/50 font-black uppercase tracking-[0.3em] mt-2 italic">Optimización de Homeostasis Celular</p>
+                 <p className="text-[10px] sm:text-[12px] text-slate-600 dark:text-white/50 font-black uppercase tracking-[0.3em] mt-1 sm:mt-2 italic">Optimización de Homeostasis Celular</p>
                </div>
             </div>
             <p className="text-lg text-slate-700 dark:text-secondary font-semibold italic max-w-3xl leading-relaxed">
@@ -859,7 +859,7 @@ const Dashboard: React.FC<Props> = ({
                 <span className="text-[11px] font-black text-secondary uppercase tracking-[0.25em] italic">Eficacia Sistémica</span>
               </div>
             </div>
-            <div className={`text-6xl font-black italic tracking-tighter mb-2 transition-all duration-500 ${efficiencyMetrics.projected >= 80 ? 'text-emerald-600' : 'text-amber-600'}`}>
+            <div className={`text-4xl sm:text-6xl font-black italic tracking-tighter mb-2 transition-all duration-500 ${efficiencyMetrics.projected >= 80 ? 'text-emerald-600' : 'text-amber-600'}`}>
               {efficiencyMetrics.projected}%
             </div>
             <div className="flex items-center gap-5 mt-6 border-t border-border pt-4">
@@ -884,8 +884,8 @@ const Dashboard: React.FC<Props> = ({
               <Zap className="text-amber-600" size={20} />
               <span className="text-[11px] font-black text-secondary uppercase tracking-[0.25em] italic">Tomas Completadas</span>
             </div>
-            <div className="text-6xl font-black text-primary italic tracking-tighter mb-2">
-              {currentLog.takenIds.filter(id => currentTargetIds.includes(id)).length || 0}<span className="text-2xl text-secondary ml-1.5 opacity-60">/{currentTargetIds.length}</span>
+            <div className="text-4xl sm:text-6xl font-black text-primary italic tracking-tighter mb-2">
+              {currentLog.takenIds.filter(id => currentTargetIds.includes(id)).length || 0}<span className="text-xl sm:text-2xl text-secondary ml-1.5 opacity-60">/{currentTargetIds.length}</span>
             </div>
             <p className="text-[11px] text-secondary font-bold uppercase italic mt-4 border-t border-border pt-3 opacity-80">Cumplimiento del Plan Diario</p>
           </div>
@@ -900,7 +900,7 @@ const Dashboard: React.FC<Props> = ({
               </div>
             </div>
             <div className="flex items-baseline gap-2 mb-2">
-              <div className={`text-6xl font-black italic tracking-tighter ${structuralHealthScore < 75 ? 'text-amber-600' : 'text-[#3B82F6]'}`}>
+              <div className={`text-4xl sm:text-6xl font-black italic tracking-tighter ${structuralHealthScore < 75 ? 'text-amber-600' : 'text-[#3B82F6]'}`}>
                 {structuralHealthScore}%
               </div>
             </div>
@@ -923,8 +923,8 @@ const Dashboard: React.FC<Props> = ({
                    <Activity className="text-[#3B82F6]" size={28} />
                 </div>
                 <div>
-                  <h3 className="text-3xl font-black text-primary italic uppercase tracking-tighter leading-none">Chronos Individual</h3>
-                  <p className="text-[11px] text-secondary font-black uppercase tracking-widest mt-2 italic border-l-2 border-indigo-500/30 pl-3">{isViewingToday ? 'Protocolos Activos + Mesa de Carga' : 'Historial de Bio-Datos'}</p>
+                  <h3 className="text-2xl sm:text-3xl font-black text-primary italic uppercase tracking-tighter leading-none">Chronos Individual</h3>
+                  <p className="text-[10px] sm:text-[11px] text-secondary font-black uppercase tracking-widest mt-1 sm:mt-2 italic border-l-2 border-indigo-500/30 pl-3">{isViewingToday ? 'Protocolos Activos + Mesa de Carga' : 'Historial de Bio-Datos'}</p>
                 </div>
               </div>
             </div>
@@ -948,7 +948,7 @@ const Dashboard: React.FC<Props> = ({
                     <div 
                       key={i} 
                       onClick={() => isViewingToday && toggleStaged(s.id)}
-                      className={`p-8 rounded-[2.5rem] border-2 transition-all duration-700 relative overflow-hidden group cursor-pointer
+                      className={`p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] border-2 transition-all duration-700 relative overflow-hidden group cursor-pointer
                       ${isProtected 
                         ? 'bg-indigo-600/5 border-indigo-500/40 shadow-indigo-600/5' 
                         : isStaged && isActiveReal 
@@ -958,10 +958,10 @@ const Dashboard: React.FC<Props> = ({
                             : 'bg-[#3B82F6]/5 border-[#3B82F6]/30 shadow-lg hover:bg-slate-50 dark:hover:bg-white/5'}`}
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-8">
-                        <div className="flex items-center gap-8">
+                        <div className="flex items-center gap-4 sm:gap-8">
                           <div 
                             onClick={(e) => { e.stopPropagation(); setSelectedSupId(s.id); }}
-                            className={`w-20 h-20 rounded-[2rem] flex items-center justify-center text-4xl transition-all relative overflow-hidden border-2 shadow-2xl hover:scale-110 active:scale-95 group/icon ${isProtected ? 'bg-slate-950 border-indigo-500 text-indigo-500' : isStaged && isActiveReal ? 'bg-slate-950 border-red-600 text-red-600' : isStaged ? 'bg-slate-950 border-amber-600 text-amber-600' : 'bg-slate-950 border-[#3B82F6]/50 text-[#3B82F6]'}`}
+                            className={`w-14 h-14 sm:w-20 sm:h-20 rounded-[1.2rem] sm:rounded-[2rem] flex items-center justify-center text-2xl sm:text-4xl transition-all relative overflow-hidden border-2 shadow-2xl hover:scale-110 active:scale-95 group/icon ${isProtected ? 'bg-slate-950 border-indigo-500 text-indigo-500' : isStaged && isActiveReal ? 'bg-slate-950 border-red-600 text-red-600' : isStaged ? 'bg-slate-950 border-amber-600 text-amber-600' : 'bg-slate-950 border-[#3B82F6]/50 text-[#3B82F6]'}`}
                           >
                             {getEmoji(s.name)}
                             <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/icon:opacity-100 transition-opacity">
@@ -994,23 +994,23 @@ const Dashboard: React.FC<Props> = ({
                           </div>
                         </div>
                         
-                        <div className="flex items-center gap-6" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-3 sm:gap-6" onClick={(e) => e.stopPropagation()}>
                            <button 
                               onClick={() => handleToggleIndividualNow(s.id)}
-                              className={`w-12 h-12 rounded-xl flex items-center justify-center border transition-all shadow-xl ${isProtected ? 'bg-indigo-600/20 border-indigo-500/40 text-indigo-500' : isActiveReal && !isStaged ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-500 cursor-default' : (isStaged && isActiveReal ? 'bg-black/20 border-white/5 text-red-500 hover:text-emerald-500' : 'bg-black/20 border-white/5 text-secondary hover:text-amber-500 hover:border-amber-500/40')}`}
+                              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center border transition-all shadow-xl ${isProtected ? 'bg-indigo-600/20 border-indigo-500/40 text-indigo-500' : isActiveReal && !isStaged ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-500 cursor-default' : (isStaged && isActiveReal ? 'bg-black/20 border-white/5 text-red-500 hover:text-emerald-500' : 'bg-black/20 border-white/5 text-secondary hover:text-amber-500 hover:border-amber-500/40')}`}
                               title={isProtected ? "Protegido por otro stack activo" : isActiveReal && !isStaged ? "Activo (Apagar seleccionando tarjeta)" : (isStaged && isActiveReal ? "Cancelar retiro pendiente" : "Activar Protocolo")}
                             >
                               {isProtected ? <ShieldCheck size={20} /> : isActiveReal && !isStaged ? <Check size={20} /> : <Play size={20} fill="currentColor" />}
                             </button>
 
-                           <div className="flex items-center gap-4 border-l border-border/40 pl-6">
-                              <span className="text-[11px] font-black text-slate-500 dark:text-secondary uppercase tracking-widest italic opacity-70">{isTaken ? 'LOGRADO' : 'PENDIENTE'}</span>
+                            <div className="flex items-center gap-3 sm:gap-4 border-l border-border/40 pl-3 sm:pl-6">
+                              <span className="hidden sm:block text-[11px] font-black text-slate-500 dark:text-secondary uppercase tracking-widest italic opacity-70">{isTaken ? 'LOGRADO' : 'PENDIENTE'}</span>
                               <button 
                                 onClick={() => toggleIntake(s.id)}
                                 disabled={!isViewingToday || !isTrulyActive}
-                                className={`w-14 h-14 rounded-2xl border-2 flex items-center justify-center transition-all shadow-xl ${isTaken ? 'bg-emerald-600 border-emerald-400 text-black shadow-[0_0_25px_rgba(5,150,105,0.5)]' : 'bg-slate-50 dark:bg-black/60 border-slate-300 dark:border-white/10 text-slate-500 dark:text-secondary hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-600/50 hover:shadow-emerald-600/10'} ${(!isViewingToday || !isTrulyActive) ? 'opacity-30 grayscale cursor-not-allowed' : ''}`}
+                                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl border-2 flex items-center justify-center transition-all shadow-xl ${isTaken ? 'bg-emerald-600 border-emerald-400 text-black shadow-[0_0_25px_rgba(5,150,105,0.5)]' : 'bg-slate-50 dark:bg-black/60 border-slate-300 dark:border-white/10 text-slate-500 dark:text-secondary hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-600/50 hover:shadow-emerald-600/10'} ${(!isViewingToday || !isTrulyActive) ? 'opacity-30 grayscale cursor-not-allowed' : ''}`}
                               >
-                                {isTaken ? <CheckSquare size={30} strokeWidth={3} /> : <Square size={30} strokeWidth={2} />}
+                                {isTaken ? <CheckSquare size={24} sm:size={30} strokeWidth={3} /> : <Square size={24} sm:size={30} strokeWidth={2} />}
                               </button>
                            </div>
                         </div>
@@ -1032,8 +1032,8 @@ const Dashboard: React.FC<Props> = ({
                    <Layers className="text-amber-600" size={28} />
                 </div>
                 <div>
-                  <h3 className="text-3xl font-black text-primary italic uppercase tracking-tighter leading-none">Synergy Agenda</h3>
-                  <p className="text-[11px] text-secondary font-black uppercase tracking-widest mt-2 italic border-l-2 border-amber-600/40 pl-3">Sincronización Maestra PRO</p>
+                  <h3 className="text-2xl sm:text-3xl font-black text-primary italic uppercase tracking-tighter leading-none">Synergy Agenda</h3>
+                  <p className="text-[10px] sm:text-[11px] text-secondary font-black uppercase tracking-widest mt-1 sm:mt-2 italic border-l-2 border-amber-600/40 pl-3">Sincronización Maestra PRO</p>
                 </div>
               </div>
             </div>
@@ -1061,16 +1061,16 @@ const Dashboard: React.FC<Props> = ({
                     <div 
                       key={i} 
                       onClick={() => isViewingToday && toggleStagedStack(stack.ingredients)}
-                      className={`p-8 rounded-[3rem] border-2 flex items-center justify-between group relative overflow-hidden transition-all duration-500 cursor-pointer
+                      className={`p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[3rem] border-2 flex flex-col sm:flex-row items-center justify-between group relative overflow-hidden transition-all duration-500 cursor-pointer gap-6
                       ${isFullStagedRemoval 
                         ? 'bg-red-600/10 border-red-600 shadow-red-600/10' 
                         : isFullStagedAddition
                           ? 'bg-amber-600/10 border-amber-600 shadow-amber-600/10' 
                           : 'bg-slate-50 dark:bg-white/10 border-slate-200 dark:border-white/10 shadow-lg hover:bg-slate-100 hover:border-slate-300'}`}
                     >
-                      <div className="flex items-center gap-8">
-                        <div className={`w-16 h-16 rounded-[1.8rem] flex items-center justify-center border-2 transition-all shadow-xl ${isFullStagedRemoval ? 'bg-slate-950 border-[#E63946] text-[#E63946]' : isTrulyActiveStack ? 'bg-slate-950 border-indigo-500 text-indigo-500' : 'bg-slate-950 border-amber-600 text-amber-600'}`}>
-                          {React.cloneElement(stack.icon as React.ReactElement<any>, { size: 30 })}
+                      <div className="flex items-center gap-4 sm:gap-8 w-full sm:w-auto">
+                        <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-[1.2rem] sm:rounded-[1.8rem] flex-shrink-0 flex items-center justify-center border-2 transition-all shadow-xl ${isFullStagedRemoval ? 'bg-slate-950 border-[#E63946] text-[#E63946]' : isTrulyActiveStack ? 'bg-slate-950 border-indigo-500 text-indigo-500' : 'bg-slate-950 border-amber-600 text-amber-600'}`}>
+                          {React.cloneElement(stack.icon as React.ReactElement<any>, { size: 24 })}
                         </div>
                         <div>
                           <div className="flex items-center gap-5 mb-3.5">
@@ -1106,23 +1106,23 @@ const Dashboard: React.FC<Props> = ({
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-8" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center gap-6">
+                      <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-8 w-full sm:w-auto" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-3 sm:gap-6">
                            <button 
                               onClick={() => handleToggleStackNow(stack.ingredients)}
-                              className={`w-14 h-14 rounded-2xl flex items-center justify-center border transition-all shadow-xl ${isTrulyActiveStack ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-500 cursor-pointer hover:bg-red-500 hover:text-white hover:border-red-400' : (isFullStagedRemoval ? 'bg-black/20 border-white/5 text-red-500 hover:text-emerald-500' : 'bg-black/20 border-white/5 text-secondary hover:text-amber-500 hover:border-amber-500/40')}`}
+                              className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center border transition-all shadow-xl ${isTrulyActiveStack ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-500 cursor-pointer hover:bg-red-500 hover:text-white hover:border-red-400' : (isFullStagedRemoval ? 'bg-black/20 border-white/5 text-red-500 hover:text-emerald-500' : 'bg-black/20 border-white/5 text-secondary hover:text-amber-500 hover:border-amber-500/40')}`}
                               title={isTrulyActiveStack ? "Activo (Click para apagar)" : (isFullStagedRemoval ? "Cancelar retiro del stack" : "Activar Protocolo")}
                             >
-                              {isTrulyActiveStack ? <Power size={24} /> : (isFullStagedRemoval ? <Play size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />)}
+                              {isTrulyActiveStack ? <Power size={20} /> : (isFullStagedRemoval ? <Play size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />)}
                             </button>
 
-                           <div className="flex items-center gap-4 border-l border-border/40 pl-6">
+                           <div className="flex items-center gap-3 sm:gap-4 border-l border-border/40 pl-3 sm:pl-6">
                               <button 
                                   onClick={() => toggleStackIntake(stack.name)}
                                   disabled={!isViewingToday || !isTrulyActiveStack}
-                                  className={`w-16 h-16 rounded-[1.5rem] border-2 transition-all flex items-center justify-center shadow-2xl ${isTaken ? 'bg-emerald-600 border-emerald-400 text-black shadow-[0_0_30px_rgba(16,185,129,0.7)]' : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 dark:text-secondary hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-600/50 hover:shadow-emerald-600/10'} ${(!isViewingToday || !isTrulyActiveStack) ? 'opacity-40 cursor-not-allowed grayscale' : ''}`}
+                                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-[1.5rem] border-2 transition-all flex items-center justify-center shadow-2xl ${isTaken ? 'bg-emerald-600 border-emerald-400 text-black shadow-[0_0_30px_rgba(16,185,129,0.7)]' : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 dark:text-secondary hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-600/50 hover:shadow-emerald-600/10'} ${(!isViewingToday || !isTrulyActiveStack) ? 'opacity-40 cursor-not-allowed grayscale' : ''}`}
                               >
-                                  {isTaken ? <CheckSquare size={34} strokeWidth={3.5} /> : <Square size={34} strokeWidth={2.5} />}
+                                  {isTaken ? <CheckSquare size={28} sm:size={34} strokeWidth={3.5} /> : <Square size={28} sm:size={34} strokeWidth={2.5} />}
                               </button>
                            </div>
                         </div>

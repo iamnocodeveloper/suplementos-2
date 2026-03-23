@@ -67,7 +67,7 @@ const BioDynamicsChart: React.FC<{ kinetics: StackDetail['kinetics'] }> = ({ kin
         onTouchMove={handleMouseMove}
         onMouseLeave={() => setHoverX(null)}
         onTouchEnd={() => setHoverX(null)}
-        className="relative h-40 w-full cursor-crosshair touch-none select-none"
+        className="relative h-32 sm:h-40 w-full cursor-crosshair touch-none select-none"
       >
         <div className="absolute inset-0 flex flex-col justify-between opacity-10 dark:opacity-20 pointer-events-none">
           {[...Array(5)].map((_, i) => <div key={i} className="w-full h-px bg-slate-400 dark:bg-white" />)}
@@ -163,7 +163,7 @@ const StackCard: React.FC<{
   return (
     <div className="flex flex-col h-full relative">
       <div className={`
-        group bg-white dark:bg-surface border rounded-[2.5rem] p-6 flex flex-col transition-all duration-700 relative overflow-hidden h-full
+        group bg-white dark:bg-surface border rounded-[1.5rem] sm:rounded-[2.5rem] p-4 sm:p-6 flex flex-col transition-all duration-700 relative overflow-hidden h-full
         ${isActive ? 'border-amber-500 shadow-amber-500/10' : isSomeActive ? 'border-indigo-500/40 shadow-indigo-500/5' : 'border-slate-200 dark:border-border/40 hover:border-indigo-500/40 hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:-translate-y-1'}
         ${isLocked ? 'opacity-80 grayscale-[0.5]' : ''}
       `}>
@@ -186,7 +186,7 @@ const StackCard: React.FC<{
 
         <div className="mb-4">
           <div className="flex items-center gap-3 mb-3">
-             <h3 className={`text-2xl font-black uppercase italic tracking-tighter leading-none group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors ${isActive ? 'text-amber-500' : 'text-slate-900 dark:text-primary'}`}>
+             <h3 className={`text-xl sm:text-2xl font-black uppercase italic tracking-tighter leading-none group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors ${isActive ? 'text-amber-500' : 'text-slate-900 dark:text-primary'}`}>
               {stack.name}
             </h3>
           </div>
@@ -417,10 +417,10 @@ const StacksView: React.FC<Props> = ({ supplements, activeSuppIds, onToggleProto
   return (
     <div className="py-12 animate-fade-in space-y-16 max-w-[1440px] mx-auto px-4 sm:px-8">
       <div className="max-w-3xl">
-        <h2 className="text-5xl md:text-7xl font-black text-primary italic uppercase tracking-tighter mb-6 leading-[0.9]">
+        <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-primary italic uppercase tracking-tighter mb-4 sm:6 leading-[0.9]">
           Sinergias <span className="text-indigo-600 dark:text-indigo-400">Moleculares</span>
         </h2>
-        <p className="text-lg text-secondary font-medium leading-relaxed italic opacity-90 max-w-2xl">
+        <p className="text-base sm:text-lg text-secondary font-medium leading-relaxed italic opacity-90 max-w-2xl">
           Protocolos diseñados para maximizar la biodisponibilidad y evitar antagonismos. Cada stack ha sido validado por nuestro motor de farmacocinética IA.
         </p>
       </div>

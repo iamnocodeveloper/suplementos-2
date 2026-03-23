@@ -29,18 +29,18 @@ const Hero: React.FC<Props> = ({ onStart }) => {
         {/* Main Text Section */}
         <div className="text-center max-w-[1600px] mx-auto mb-20 flex flex-col items-center">
           
-          <div className="flex flex-col items-center mb-10">
-            <h1 className="text-5xl md:text-8xl font-black tracking-tighter text-primary animate-slide-up mb-6 leading-[0.95]" style={{ animationDelay: '0.1s' }}>
+          <div className="flex flex-col items-center mb-6 sm:mb-10">
+            <h1 className="text-4xl md:text-8xl font-black tracking-tighter text-primary animate-slide-up mb-4 sm:mb-6 leading-[0.95]" style={{ animationDelay: '0.1s' }}>
               Potencia tu cuerpo y mente
             </h1>
             
             {/* Marco de Precisión Científica */}
-            <div className="inline-flex items-center gap-6 px-10 py-5 rounded-2xl border border-border bg-surface/80 backdrop-blur-xl animate-fade-in shadow-2xl transition-all duration-700 hover:border-indigo-500/30 group">
+            <div className="inline-flex items-center gap-3 sm:gap-6 px-6 sm:px-10 py-3 sm:py-5 rounded-xl sm:rounded-2xl border border-border bg-surface/80 backdrop-blur-xl animate-fade-in shadow-2xl transition-all duration-700 hover:border-indigo-500/30 group">
               <div className="relative flex items-center justify-center">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#00FF90] shadow-[0_0_12px_#00FF90] animate-pulse" />
-                <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-[#00FF90] animate-ping opacity-40" />
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#00FF90] shadow-[0_0_12px_#00FF90] animate-pulse" />
+                <div className="absolute inset-0 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#00FF90] animate-ping opacity-40" />
               </div>
-              <h2 className="text-2xl md:text-5xl font-black text-indigo-500 dark:text-indigo-400 tracking-[0.02em] leading-none uppercase italic">
+              <h2 className="text-xl md:text-5xl font-black text-indigo-500 dark:text-indigo-400 tracking-[0.02em] leading-none uppercase italic">
                 con ciencia y precisión
               </h2>
             </div>
@@ -52,11 +52,11 @@ const Hero: React.FC<Props> = ({ onStart }) => {
 
           <button 
             onClick={() => { soundService.playClick(); onStart(); }}
-            className="group relative inline-flex items-center justify-center px-16 py-6 text-xl font-black uppercase italic tracking-[0.2em] text-white bg-indigo-600 rounded-full hover:bg-indigo-500 transition-all duration-300 shadow-[0_0_30px_rgba(79,70,229,0.3)] hover:shadow-[0_0_50px_rgba(79,70,229,0.5)] hover:-translate-y-1.5 animate-slide-up"
+            className="group relative inline-flex items-center justify-center px-10 sm:px-16 py-4 sm:py-6 text-lg sm:text-xl font-black uppercase italic tracking-[0.15em] sm:tracking-[0.2em] text-white bg-indigo-600 rounded-full hover:bg-indigo-500 transition-all duration-300 shadow-[0_0_30px_rgba(79,70,229,0.3)] hover:shadow-[0_0_50px_rgba(79,70,229,0.5)] hover:-translate-y-1.5 animate-slide-up"
             style={{ animationDelay: '0.4s' }}
           >
             Empieza Ahora
-            <ArrowRight className="ml-4 w-7 h-7 group-hover:translate-x-2 transition-transform" />
+            <ArrowRight className="ml-3 sm:ml-4 w-6 h-6 sm:w-7 sm:h-7 group-hover:translate-x-2 transition-transform" />
           </button>
         </div>
 

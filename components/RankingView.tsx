@@ -338,7 +338,7 @@ const RankingView: React.FC<Props> = ({
         <div 
           onClick={handleSyncTrigger}
           className={`
-            flex items-center justify-between p-6 bg-surface/50 border-2 rounded-[2rem] backdrop-blur-md transition-all cursor-pointer hover:scale-[1.005] active:scale-[0.99]
+            flex flex-col sm:flex-row items-center justify-between p-4 sm:p-6 bg-surface/50 border-2 rounded-[1.5rem] sm:rounded-[2rem] backdrop-blur-md transition-all cursor-pointer hover:scale-[1.005] active:scale-[0.99] gap-4
             ${isSyncing ? 'border-indigo-500 shadow-[0_0_40px_rgba(99,102,241,0.4)]' : 'border-border/60 hover:border-indigo-500/40 shadow-2xl'}
           `}
           onMouseEnter={() => setShowSyncInfo(true)}
@@ -366,25 +366,25 @@ const RankingView: React.FC<Props> = ({
             </div>
           </div>
           
-          <div className="flex items-center gap-4 font-mono text-3xl font-black text-primary italic tracking-tighter">
+          <div className="flex items-center gap-3 sm:gap-4 font-mono text-xl sm:text-3xl font-black text-primary italic tracking-tighter">
             <div className="flex flex-col items-center">
               <span className="text-indigo-600 dark:text-indigo-400 leading-none">{timeLeft.d}</span>
-              <span className="text-[9px] text-secondary uppercase tracking-widest mt-1">Días</span>
+              <span className="text-[7px] sm:text-[9px] text-secondary uppercase tracking-widest mt-1">Días</span>
             </div>
             <span className="opacity-20">:</span>
             <div className="flex flex-col items-center">
               <span className="text-indigo-600 dark:text-indigo-400 leading-none">{timeLeft.h}</span>
-              <span className="text-[9px] text-secondary uppercase tracking-widest mt-1">Horas</span>
+              <span className="text-[7px] sm:text-[9px] text-secondary uppercase tracking-widest mt-1">Horas</span>
             </div>
             <span className="opacity-20">:</span>
             <div className="flex flex-col items-center">
               <span className="text-indigo-600 dark:text-indigo-400 leading-none">{timeLeft.m}</span>
-              <span className="text-[9px] text-secondary uppercase tracking-widest mt-1">Mins</span>
+              <span className="text-[7px] sm:text-[9px] text-secondary uppercase tracking-widest mt-1">Mins</span>
             </div>
             <span className="opacity-20">:</span>
             <div className="flex flex-col items-center">
               <span className="text-indigo-600 dark:text-indigo-400 animate-pulse leading-none">{timeLeft.s}</span>
-              <span className="text-[9px] text-secondary uppercase tracking-widest mt-1">Segs</span>
+              <span className="text-[7px] sm:text-[9px] text-secondary uppercase tracking-widest mt-1">Segs</span>
             </div>
           </div>
         </div>
@@ -431,7 +431,7 @@ const RankingView: React.FC<Props> = ({
                   key={`sci-${sup.id}`} 
                   onClick={() => handleSelect(sup)}
                   className={`
-                    group bg-surface border-y border-r rounded-r-[1.5rem] rounded-l-lg py-3 px-6 flex items-center transition-all duration-500 cursor-pointer hover:-translate-y-1 relative overflow-visible min-h-[110px]
+                    group bg-surface border-y border-r rounded-r-[1.5rem] rounded-l-lg py-2 sm:py-3 px-3 sm:px-6 flex items-center transition-all duration-500 cursor-pointer hover:-translate-y-1 relative overflow-visible min-h-[90px] sm:min-h-[110px]
                     ${posDiff > 0 ? 'border-emerald-500/30 shadow-emerald-500/5 shadow-2xl' : 
                       posDiff < 0 ? 'border-red-500/30 shadow-red-500/5 shadow-2xl' : 
                       'border-border hover:border-indigo-500/40 shadow-xl'}
@@ -458,7 +458,7 @@ const RankingView: React.FC<Props> = ({
 
                   <div className="flex-grow min-w-0 flex flex-col justify-center overflow-visible">
                     <div className="flex items-center gap-3 mb-1.5 overflow-visible">
-                      <h3 className={`text-xl font-black uppercase italic tracking-tighter leading-tight border-l-4 border-indigo-500/50 pl-3 pr-6 bg-clip-text text-transparent bg-gradient-to-br from-neutral-900 to-neutral-500 dark:from-white dark:to-white/60 drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,1)] group-hover:border-indigo-500 transition-all ${isActive ? 'from-amber-400 to-amber-600 border-amber-500' : ''}`}>
+                      <h3 className={`text-base sm:text-xl font-black uppercase italic tracking-tighter leading-tight border-l-4 border-indigo-500/50 pl-2 sm:pl-3 pr-3 sm:pr-6 bg-clip-text text-transparent bg-gradient-to-br from-neutral-900 to-neutral-500 dark:from-white dark:to-white/60 drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,1)] group-hover:border-indigo-500 transition-all ${isActive ? 'from-amber-400 to-amber-600 border-amber-500' : ''}`}>
                         {sup.name}
                       </h3>
                       <TrendBadge diff={posDiff} />
@@ -490,30 +490,30 @@ const RankingView: React.FC<Props> = ({
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end justify-center self-stretch pl-6 border-l border-border/60 ml-4 flex-shrink-0">
+                  <div className="flex flex-col items-end justify-center self-stretch pl-4 sm:pl-6 border-l border-border/60 ml-2 sm:ml-4 flex-shrink-0">
                     <div className="text-right flex flex-col items-end gap-2">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 sm:gap-3">
                          <button 
                             onClick={(e) => handleProtocolClick(e, sup.id)}
-                            className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-all shadow-lg 
+                            className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center border transition-all shadow-lg 
                               ${!preferences.isPremium 
                                 ? 'bg-black/20 border-white/5 text-secondary/30 cursor-not-allowed' 
                                 : (isActive ? 'bg-amber-500 border-amber-400 text-black shadow-amber-500/40' : 'bg-black/20 border-white/5 text-secondary hover:text-amber-500 hover:border-amber-500/40')
                               }`}
                           >
-                            {!preferences.isPremium ? <Lock size={16} className="text-amber-500/40" /> : (isActive ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />)}
+                            {!preferences.isPremium ? <Lock size={14} className="text-amber-500/40" /> : (isActive ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />)}
                           </button>
-                        <div className="flex flex-col items-end relative">
-                          <div className="text-[8px] font-black text-secondary uppercase tracking-[0.2em] mb-0.5 leading-none">Score IA</div>
-                          <div className="flex items-center gap-2">
+                        <div className="flex flex-col items-end relative min-w-[50px]">
+                          <div className="text-[7px] sm:text-[8px] font-black text-secondary uppercase tracking-[0.2em] mb-0.5 leading-none">Score IA</div>
+                          <div className="flex items-center gap-1 sm:gap-2">
                              {sup.previousScientificScore !== undefined && (
-                               <span className="text-xs text-secondary/40 line-through font-bold decoration-red-500/50">{sup.previousScientificScore}</span>
+                               <span className="text-[10px] sm:text-xs text-secondary/40 line-through font-bold decoration-red-500/50">{sup.previousScientificScore}</span>
                              )}
-                             <div className="text-3xl font-black italic leading-none text-indigo-600 dark:text-[#3B82F6]">
+                             <div className="text-xl sm:text-3xl font-black italic leading-none text-indigo-600 dark:text-[#3B82F6]">
                                {sup.scientificScore}
                              </div>
                              {scoreDiff !== 0 && (
-                               <span className={`text-[10px] font-black italic ml-1 ${scoreDiff > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                               <span className={`text-[8px] sm:text-[10px] font-black italic ml-1 ${scoreDiff > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
                                  {scoreDiff > 0 ? `+${scoreDiff.toFixed(1)}` : scoreDiff.toFixed(1)}
                                </span>
                              )}
